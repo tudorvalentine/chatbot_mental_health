@@ -6,6 +6,9 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report
 import random
 
+from telegram import Update
+from telegram.ext import CommandHandler, filters, MessageHandler, ApplicationBuilder
+
 # Load the intents data
 with open('input/intents.json', 'r') as f:
     data = json.load(f)
@@ -36,22 +39,33 @@ def generate_response(intent):
     responses = df[df['tag'] == intent]['responses'].values[0]
     return random.choice(responses)
 
-# Main function for the chatbot
-def chat():
-    print("Chatbot: Hello! How can I assist you today?")
-    while True:
-        user_input = input("You: ")
-        if user_input.lower() == 'exit':
-            print("Chatbot: Goodbye! Take care.")
-            break
+# Function to handle the /start command
+async def start(update, context):
+    await update.message.reply_text("Hello! I'm your mental health bot. How can I help you today?")
 
-        # Predict intent
-        intent = predict_intent(user_input)
+# Function to handle incoming messages
+async def handle_message(update, context):
+    user_input = update.message.text
+    intent = predict_intent(user_input)
+    response = generate_response(intent)
+    await update.message.reply_text(response)
 
-        # Generate response
-        response = generate_response(intent)
+def main():
+    # Initialize the Updater and pass in your bot's token
+    app = ApplicationBuilder().token("7123912517:AAG2btyXGdy2x6x3hM79vss5KKUS_B4b8Ww").build()
 
-        print("Chatbot:", response)
+    # Register a command handler for the /start command
+    app.add_handler(CommandHandler("start", start))
+
+    # Register a message handler to handle incoming messages
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
+
+    # Start the Bot
+    app.run_polling()
+
+    # Run the bot until you press Ctrl-C
+    app.idle()
 
 if __name__ == "__main__":
-    chat()
+    main()
