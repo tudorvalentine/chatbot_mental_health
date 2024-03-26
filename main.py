@@ -52,7 +52,7 @@ async def handle_message(update, context):
 
 def main():
     # Initialize the Updater and pass in your bot's token
-    app = ApplicationBuilder().token("7123912517:AAG2btyXGdy2x6x3hM79vss5KKUS_B4b8Ww").build()
+    app = ApplicationBuilder().token("").build()
 
     # Register a command handler for the /start command
     app.add_handler(CommandHandler("start", start))
