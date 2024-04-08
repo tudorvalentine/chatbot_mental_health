@@ -4,7 +4,9 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
 import random
+
 
 from telegram import Update
 from telegram.ext import CommandHandler, filters, MessageHandler, ApplicationBuilder
@@ -23,11 +25,18 @@ X_str = [' '.join(patterns) for patterns in X]
 # Vectorize the text data using TF-IDF
 vectorizer = TfidfVectorizer()
 X_vec = vectorizer.fit_transform(X_str)
+# Split data into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(X_vec, y, test_size=0.2, random_state=42)
 
 # Train a Support Vector Machine (SVM) classifier
 model = SVC()
 model.fit(X_vec, y)
+# Evaluate the model
+y_pred = model.predict(X_test)
+accuracy = np.mean(y_pred == y_test)
+print("Model Accuracy:", accuracy)
 
+print("Model train finished !")
 # Function to predict intents based on user input
 def predict_intent(user_input):
     user_input_vec = vectorizer.transform([user_input])
